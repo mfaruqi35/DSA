@@ -169,21 +169,39 @@ void infixToPostfix(char infix[], char postfix[]){
     postfix[j] = '\0';
 }
 
+/* Evaluasi PostFix */
+
 int evaluasiPostFix(char *postFix){
-    stackList stack;
-    createEmptyStackList(&stack);
+    stackArray stackArray;
+    stackList stackList;
+    createEmptyStackArray(&stackArray);
+    createEmptyStackList(&stackList);
 
     for (int i = 0; postFix[i] != '\0'; i++){
         char ch = postFix[i];
 
         if(isdigit(ch)){
-            pushList(&stack, ch - '0');
+            pushArray(&stackArray, ch - '0');
+            pushList(&stackList, ch - '0');
+        }
+        else {
+            int b = popArray(&stackArray);
+            int a = popArray(&stackArray);
+
+            switch (ch){
+                case '+': pushArray(&stackArray, a + b); break;
+                case '-': pushArray(&stackArray, a - b); break;
+                case '*': pushArray(&stackArray, a * b); break;
+                case '/': pushArray(&stackArray, a / b); break;
+            }
+            pushList(&stackList, peekArray(&stackArray));
         }
     }
+    return popArray(&stackArray);
 }
 
 int main(){
-    char expression[MAX_SIZE];
+    char expression[MAX_SIZE], postFix[MAX_SIZE];
 
     printf("Masukkan ekspresi tanda kurung: ");
     scanf("%s", expression);
@@ -193,6 +211,13 @@ int main(){
     else {
         printf("Tanda Kurung tidak seimbang.\n");
     }
+
+    printf("Masukkan ekspresi aritmatika infix: ");
+    scanf("%s", expression);
+    infixToPostfix(expression, postFix);
+    printf("Postfix: %s\n", postFix);
+
+    printf("Hasil evaluasi postfix: %d\n", evaluasiPostFix(postFix));   
 
     return 0;
 }
